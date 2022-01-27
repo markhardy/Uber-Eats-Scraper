@@ -14,9 +14,7 @@ def run():
     #state = input("Enter the abbreviation of your state: ")
     city = 'washington'
     state = 'dc'
-    # this url format is not working. must hard code to dc and dine in
     url = "https://www.ubereats.com/city/" + city.lower() + "-" + state.lower()
-    #url = "https://www.ubereats.com/feed?diningMode=DINE_IN&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMldhc2hpbmd0b24lMjIlMkMlMjJyZWZlcmVuY2UlMjIlM0ElMjJDaElKVy1UMld0N0d0NGtSS2wySTFDSkZVc0klMjIlMkMlMjJyZWZlcmVuY2VUeXBlJTIyJTNBJTIyZ29vZ2xlX3BsYWNlcyUyMiUyQyUyMmxhdGl0dWRlJTIyJTNBMzguOTA2NzklMkMlMjJsb25naXR1ZGUlMjIlM0EtNzcuMDM3OTY2NyU3RA%3D%3D"
 
     req = Request(url, headers={'User-Agent' : 'Mozilla/5.0'})
     page = urlopen(req).read()
@@ -26,7 +24,6 @@ def run():
         x_url = x.find_parent(name='a', href=True)
         print('name of restaurant: ' + x.text)
         a = x.findNext('div', attrs = {'class' : 'ag bk'})
-        #print('?: ' + a)
         click_restaurant(x_url['href'])
         if a is not None:
             time = a.findNext('span').text
@@ -50,42 +47,24 @@ def write():
 def click_restaurant(url):
     restaurant_url = 'https://ubereats.com' + url
     print('restaurant url: ' + restaurant_url)
-    #change variable names?
     req = Request(restaurant_url, headers={'User-Agent' : 'Mozilla/5.0'})
     page = urlopen(req).read()
-    #print(page)
     soup = BeautifulSoup(page, 'html.parser')
     images = soup.find_all('img')
     images_as_strings = []
-    print(images)
     for image in images:
         images_as_strings.append(str(image))
         
-    #dish_img_url = soup.findAll('img', src=True)
     for x in images_as_strings:
-        print(x)
         img = x.split('"')
-        alt = img[1]
-        print(alt)
 
-    '''
-    for x in soup.findAll('li', class_='gm gn go gp gq gr gs gt'):
-        print('open li')
-        print('x: ' + x.text)
-        a = x.findNext('div', attrs = {'class' : 'gd ge fl ej ax'})
-        if a is not None:
-            print('a: ' + a.text)
-            category = a.text
-            image = a.findNext('img', src=True)
-            image_url = image['src']
-            dish = a.findNext('span').text
-            price = a.findNext('span').text
+        # Get img elements with 7+ attributes
+        if len(img) > 7:
+            aria_hidden = img[2].lstrip() + img[3]
+            if aria_hidden == 'aria-hidden=true':
+                alt = img[1]
+                src = img[7]
+                print('src: ' + src)
+                print('alt: ' + alt)
 
-            #upper case?
-            print(category)
-            print(image_url)
-            print(dish)
-            print(price)
-    '''
-    
 run()
